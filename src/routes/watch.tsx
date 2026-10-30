@@ -1,9 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { ClientOnly } from "@tanstack/react-router";
-import { ArrowLeft, Copy, Download, MonitorPlay } from "lucide-react";
+import { Copy, Download } from "lucide-react";
 import { toast } from "sonner";
 import { StreamPlayer } from "@/components/StreamPlayer";
 import { fileNameFromUrl } from "@/lib/avplayer";
+import { NoVideo } from "./index";
 
 export const Route = createFileRoute("/watch")({
   validateSearch: (s: Record<string, unknown>) => ({ url: typeof s["url"] === "string" ? (s["url"] as string) : "" }),
@@ -57,14 +58,9 @@ function Watch() {
 
   return (
     <main className="min-h-screen bg-background">
-      <header className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-4 sm:px-6">
-        <Link to="/" className="ctl-btn" aria-label="Back"><ArrowLeft className="h-5 w-5" /></Link>
-        <MonitorPlay className="h-5 w-5 text-primary" />
-        <span className="font-display text-lg">StreamHub</span>
-      </header>
-      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+      <section className="mx-auto max-w-6xl px-4 py-4 pb-16 sm:px-6">
         {!url ? (
-          <p className="text-muted-foreground">No link given. <Link to="/" className="text-primary underline">Paste one</Link>.</p>
+          <NoVideo />
         ) : (
           <>
             <ClientOnly fallback={<div className="player-shell" />}>
