@@ -79,6 +79,7 @@ export function StreamPlayer({ url }: { url: string }) {
   const lastProgressRef = useRef(0);
   const pendingSeekRef = useRef<number | null>(null);
   const seekingRef = useRef(false);
+  const nudgesRef = useRef(0);
 
   const [phase, setPhase] = useState<"loading" | "ready" | "error">("loading");
   const [paused, setPaused] = useState(true);
@@ -140,7 +141,7 @@ export function StreamPlayer({ url }: { url: string }) {
           enableAudioWorklet: true,
           // Smallest buffer the sound engine allows: less audio queued means less lag behind the video.
           audioWorkletBufferLength: 256,
-          preLoadTime: 20,
+          preLoadTime: 12,
         });
         // AVI files almost always carry Xvid/DivX video: decode in software from the start.
         let soft = ext === "avi";
@@ -173,7 +174,8 @@ export function StreamPlayer({ url }: { url: string }) {
           if (pendingSeekRef.current !== null || seekingRef.current) return;
           if (Math.abs(t - timeRef.current) > 0.01) {
             lastProgressRef.current = now;
-            if (pendingSeekRef.current === null) setBusy(false);
+            nudgesRef.current = 0;
+            setBusy(false);
           }
           timeRef.current = t;
           if (!scrubRef.current && now - lastUi > 500) {
@@ -302,17 +304,27 @@ export function StreamPlayer({ url }: { url: string }) {
     }
   };
 
+  // Long jumps on big files need a fresh network request + a keyframe search, which can take far
+  // longer than a short skip. The old 6 s limit gave up mid-seek and left the player stuck on
+  // "Loading". The limit is now generous, and after the jump playback is restarted if it stalled.
   const doSeek = useCallback(async (secs: number) => {
     const p = playerRef.current;
     if (!p) return;
     const ms = Math.max(0, Math.round(secs * 1000));
     seekingRef.current = true;
-    const limit = <T,>(pr: Promise<T>) => Promise.race([pr, sleep(6000).then(() => { throw new Error("seek timeout"); })]);
-    try { try { await limit(p.seek(BigInt(ms))); }
-    catch (e: any) {
-      if (String(e?.message) !== "seek timeout") { try { await limit(p.seek(ms)); } catch { /* ignore */ } }
-    } }
-    finally { seekingRef.current = false; }
+    const limit = <T,>(pr: Promise<T>, t: number) => Promise.race([pr, sleep(t).then(() => { throw new Error("seek timeout"); })]);
+    try {
+      try { await limit(p.seek(BigInt(ms)), 20000); }
+      catch (e: any) {
+        if (String(e?.message) !== "seek timeout") { try { await limit(p.seek(ms), 20000); } catch { /* ignore */ } }
+      }
+      // Wait (briefly) for the player to leave its seeking/loading state.
+      for (let i = 0; i < 200 && transient(p.status); i++) await sleep(25);
+      // Some seeks land in a paused/ready state: restart playback if the viewer was watching.
+      if (startedRef.current && !pausedRef.current && playable(p.status)) {
+        try { await Promise.race([p.play(), sleep(5000)]); } catch { /* ignore */ }
+      }
+    } finally { seekingRef.current = false; }
     timeRef.current = secs;
     lastProgressRef.current = performance.now();
     setTime(secs);
@@ -378,7 +390,7 @@ export function StreamPlayer({ url }: { url: string }) {
         pendingSeekRef.current = null;
         // Bring the sound back only once the picture moves again, so both restart together.
         const from = timeRef.current, t0 = performance.now();
-        while (performance.now() - t0 < 1200 && Math.abs(timeRef.current - from) < 0.05 && !pausedRef.current) await sleep(20);
+        while (performance.now() - t0 < 2500 && Math.abs(timeRef.current - from) < 0.05 && !pausedRef.current) await sleep(20);
       } finally {
         // A newer seek may already be queued: leave its target and spinner alone.
         const newer = pendingSeekRef.current !== null && pendingSeekRef.current !== done;
@@ -406,11 +418,17 @@ export function StreamPlayer({ url }: { url: string }) {
       if (!p || !startedRef.current || pendingSeekRef.current !== null) return;
       if (document.visibilityState === "hidden") return;
       const idleFor = performance.now() - lastProgressRef.current;
-      if (idleFor > 2500) setBusy(true);
-      if (idleFor > 9000 && active(p.status)) {
+      if (idleFor > 1500) setBusy(true);
+      // Still fetching after a jump: give it time instead of restarting the request over and over.
+      if (transient(p.status) && idleFor < 20000) return;
+      if (idleFor > 6000 && nudgesRef.current < 3) {
+        nudgesRef.current++;
         lastProgressRef.current = performance.now();
         run(async () => {
-          try { await doSeek(timeRef.current); } catch { /* ignore */ }
+          try {
+            if (playable(p.status)) await Promise.race([p.play(), sleep(5000)]);
+            else await doSeek(timeRef.current);
+          } catch { /* ignore */ }
         });
       }
     }, 1000);
