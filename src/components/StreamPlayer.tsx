@@ -139,9 +139,11 @@ export function StreamPlayer({ url }: { url: string }) {
           enableWebCodecs: !soft,
           enableWorker: true,
           enableAudioWorklet: true,
+          // preLoadTime = seconds the player downloads before (re)starting after open or a seek. 20 s made every
+          // long jump wait for megabytes of data; 5 s restarts quickly and keeps reading ahead while playing.
           // Smallest buffer the sound engine allows: less audio queued means less lag behind the video.
           audioWorkletBufferLength: 256,
-          preLoadTime: 12,
+          preLoadTime: 5,
         });
         // AVI files almost always carry Xvid/DivX video: decode in software from the start.
         let soft = ext === "avi";
