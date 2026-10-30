@@ -1,0 +1,169 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-scrim: var(--scrim);
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.13 0.01 260);
+  --foreground: oklch(0.96 0.01 80);
+  --card: oklch(0.18 0.012 260);
+  --card-foreground: oklch(0.96 0.01 80);
+  --popover: oklch(0.17 0.012 260);
+  --popover-foreground: oklch(0.96 0.01 80);
+  --primary: oklch(0.8 0.16 70);
+  --primary-foreground: oklch(0.16 0.02 60);
+  --secondary: oklch(0.23 0.014 260);
+  --secondary-foreground: oklch(0.96 0.01 80);
+  --muted: oklch(0.23 0.014 260);
+  --muted-foreground: oklch(0.68 0.02 260);
+  --accent: oklch(0.65 0.2 30);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.8 0.16 70);
+  --chart-1: oklch(0.8 0.16 70);
+  --chart-2: oklch(0.65 0.2 30);
+  --chart-3: oklch(0.6 0.1 200);
+  --chart-4: oklch(0.7 0.1 140);
+  --chart-5: oklch(0.6 0.15 300);
+  --sidebar: oklch(0.16 0.012 260);
+  --sidebar-foreground: oklch(0.96 0.01 80);
+  --sidebar-primary: oklch(0.8 0.16 70);
+  --sidebar-primary-foreground: oklch(0.16 0.02 60);
+  --sidebar-accent: oklch(0.23 0.014 260);
+  --sidebar-accent-foreground: oklch(0.96 0.01 80);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.8 0.16 70);
+  --scrim: oklch(0.08 0.01 260 / 85%);
+  --gradient-hot: linear-gradient(100deg, var(--primary), var(--accent));
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+}
+
+@layer components {
+  .hero-bg {
+    background:
+      radial-gradient(60rem 40rem at 85% -10%, oklch(0.8 0.16 70 / 14%), transparent 60%),
+      radial-gradient(40rem 30rem at -10% 110%, oklch(0.65 0.2 30 / 14%), transparent 60%),
+      var(--background);
+  }
+  .text-gradient { background: var(--gradient-hot); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .url-box { display: flex; align-items: center; border-radius: 1rem; border: 1px solid var(--input); background: var(--card); padding: 0.375rem; box-shadow: 0 30px 80px -30px oklch(0.8 0.16 70 / 35%); transition: border-color .2s; }
+  .url-box:focus-within { border-color: var(--primary); }
+  .btn-hero { display: inline-flex; align-items: center; gap: .5rem; border-radius: .75rem; background: var(--gradient-hot); color: var(--primary-foreground); padding: .85rem 1.25rem; font-weight: 700; transition: transform .15s, filter .15s; }
+  .btn-hero:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .btn-ghost { display: inline-flex; align-items: center; gap: .5rem; border-radius: .6rem; border: 1px solid var(--border); background: var(--secondary); padding: .5rem .9rem; font-size: .875rem; color: var(--foreground); }
+  .btn-ghost:hover { border-color: var(--primary); }
+  .feature-card { border-radius: 1rem; border: 1px solid var(--border); background: oklch(0.18 0.012 260 / 60%); padding: 1.1rem; }
+  .info-pill { border-radius: 999px; border: 1px solid var(--border); background: var(--secondary); padding: .25rem .7rem; color: var(--muted-foreground); }
+
+  .player-shell { container-type: size; position: relative; aspect-ratio: 16 / 9; width: 100%; overflow: hidden; border-radius: 1rem; background: oklch(0.05 0 0); border: 1px solid var(--border); }
+  .player-shell:fullscreen { border-radius: 0; aspect-ratio: auto; }
+  .player-shell canvas, .player-shell video { width: 100% !important; height: 100% !important; object-fit: contain; }
+  /* Fullscreen: the picture must fill the whole screen edge-to-edge — no black gap bars.
+     iOS pseudo-fullscreen gets the same class, so one rule covers both paths. */
+  .player-shell.player-fs canvas, .player-shell.player-fs video { width: 100% !important; height: 100% !important; object-fit: cover; }
+  .player-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--scrim); }
+  .player-bigplay { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: grid; place-items: center; height: 5rem; width: 5rem; border-radius: 999px; background: var(--gradient-hot); color: var(--primary-foreground); box-shadow: 0 10px 40px oklch(0.8 0.16 70 / 40%); transition: transform .15s; }
+  .player-bigplay:hover { transform: translate(-50%, -50%) scale(1.06); }
+  .player-controls { position: absolute; inset-inline: 0; bottom: 0; padding: 2.5rem .9rem .7rem; background: linear-gradient(to top, var(--scrim), transparent); transition: opacity .3s; }
+  .ctl-btn { display: inline-grid; place-items: center; height: 2.25rem; width: 2.25rem; border-radius: .6rem; color: var(--foreground); transition: background .15s; }
+  .ctl-btn:hover { background: oklch(1 0 0 / 12%); }
+  .ctl-chip { display: inline-flex; align-items: center; gap: .4rem; height: 2.1rem; border-radius: .6rem; padding: 0 .65rem; font-size: .8rem; color: var(--foreground); background: oklch(1 0 0 / 8%); }
+  .ctl-chip:hover { background: oklch(1 0 0 / 16%); }
+  .ctl-chip-hot { background: oklch(0.8 0.16 70 / 22%); color: var(--primary); }
+  .ctl-menu { position: absolute; right: .5rem; bottom: calc(100% - 2rem); min-width: 11rem; max-height: max(6rem, calc(100cqh - 5.5rem)); overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; border-radius: .8rem; border: 1px solid var(--border); background: var(--popover); padding: .35rem; box-shadow: 0 20px 50px oklch(0 0 0 / 50%); z-index: 10; }
+  .ctl-menu-title { padding: .35rem .6rem; font-family: var(--font-mono); font-size: .65rem; text-transform: uppercase; letter-spacing: .2em; color: var(--muted-foreground); }
+  .ctl-item { display: block; width: 100%; text-align: left; border-radius: .5rem; padding: .5rem .6rem; font-size: .85rem; color: var(--foreground); }
+  .ctl-item:hover { background: var(--secondary); }
+  .ctl-item-on { color: var(--primary); background: oklch(0.8 0.16 70 / 12%); }
+  .speed-panel { position: absolute; right: .5rem; bottom: calc(100% - 2rem); display: flex; flex-direction: column; width: min(12rem, 72cqw); max-height: max(9rem, calc(100cqh - 5.5rem)); overflow: hidden; border-radius: .8rem; border: 1px solid var(--border); background: var(--popover); box-shadow: 0 20px 50px oklch(0 0 0 / 50%); z-index: 10; }
+  .speed-panel-head { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: .5rem; padding: .3rem .35rem .3rem .8rem; background: var(--primary); color: var(--primary-foreground); font-weight: 700; font-size: .9rem; text-align: left; }
+  .ctl-menu-head { position: sticky; top: -.35rem; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin: -.35rem -.35rem .15rem; padding: .35rem .35rem 0; background: var(--popover); }
+  .ctl-close { display: inline-grid; flex-shrink: 0; place-items: center; height: 2rem; width: 2rem; border-radius: 999px; color: var(--muted-foreground); transition: background .15s, color .15s; }
+  .ctl-close:hover { background: var(--secondary); color: var(--foreground); }
+  .ctl-close-on-primary { color: var(--primary-foreground); }
+  .ctl-close-on-primary:hover { background: oklch(0 0 0 / 15%); color: var(--primary-foreground); }
+  .speed-panel-list { min-height: 0; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; padding: .35rem; }
+  .speed-item { display: flex; align-items: center; justify-content: space-between; width: 100%; border-radius: .5rem; padding: .55rem .75rem; font-size: .9rem; color: var(--foreground); text-align: left; }
+  .speed-item:hover { background: var(--secondary); }
+  .speed-item-on svg { color: var(--primary); }
+  .player-range { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 999px; cursor: pointer; background: linear-gradient(to right, var(--primary) var(--pct, 0%), oklch(1 0 0 / 22%) var(--pct, 0%)); }
+  .player-range::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 999px; background: var(--primary); }
+  .player-range::-moz-range-thumb { height: 14px; width: 14px; border: 0; border-radius: 999px; background: var(--primary); }
+}
